@@ -29,12 +29,12 @@ class hashset:
         if self.mode == 0 or self.mode == 1 or self.mode == 2:
             sum = 0
             for letter in value:
-                sum = sum + ord(letter)
-            return (sum ** 2) % self.hash_table_size
+                sum = sum + ord(letter) ** 2
+            return (3 * sum + 7) % self.hash_table_size
         elif self.mode == 4 or self.mode == 5 or self.mode == 6:
             sum = 0
             for letter in value:
-                sum = sum + ord(letter)
+                sum = sum + ord(letter) ** 3
             return (sum ** 3) % self.hash_table_size
 
     def insert_linear(self, value):
@@ -101,6 +101,13 @@ class hashset:
                 elif self.mode == 2 or self.mode == 6:
                     self.insert_double(value)
 
+    def insert_separate_chaining(self, value):
+        hash_value = self.hashValue(value)
+        if self.hash_table[hash_value] is None:
+            self.hash_table[hash_value] = [value]
+        else:
+            self.hash_table[hash_value].append(value)
+
     def insert(self, value):
         # TODO code for inserting into  hash table
         if self.mode == 0 or self.mode == 4:
@@ -109,6 +116,8 @@ class hashset:
             self.insert_quadratic(value)
         elif self.mode == 2 or self.mode == 6:
             self.insert_double(value)
+        elif self.mode == 3 or self.mode == 7:
+            self.insert_separate_chaining(value)
         else:
             print("Error: Unknown mode")
 

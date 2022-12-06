@@ -98,6 +98,8 @@ class hashset:
                     self.insert_linear(value)
                 elif self.mode == 1 or self.mode == 5:
                     self.insert_quadratic(value)
+                elif self.mode == 2 or self.mode == 6:
+                    self.insert_double(value)
 
     def insert(self, value):
         # TODO code for inserting into  hash table

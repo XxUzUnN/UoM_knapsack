@@ -70,7 +70,7 @@ class hashset:
                 elif self.hash_table[position] == value:
                     return True
             self.resize()
-            self.insert_linear(value)
+            self.insert_quadratic(value)
 
     def insert_double(self, value):
         if self.mode == 2 or self.mode == 6:
@@ -86,7 +86,7 @@ class hashset:
                 elif self.hash_table[position] == value:
                     return True
             self.resize()
-            self.insert_linear(value)
+            self.insert_double(value)
 
     def resize(self):
         self.hash_table_size = self.nextPrime(self.hash_table_size * 2)

@@ -11,7 +11,8 @@ class hashset:
         self.hash_table_size = config.init_size
         self.hash_table = [None] * self.hash_table_size
         self.collision = 0
-        self.element = 0
+        self.access = 0
+        self.rehash = 0
 
     # Helper functions for finding prime numbers
     def isPrime(self, n):
@@ -56,7 +57,7 @@ class hashset:
                 return False
             self.collision = self.collision + 1
         self.resize()
-        self.insert_linear(value)
+        self.insert(value)
 
     def insert_quadratic(self, value):
         hash_value = self.hashValue(value)
@@ -66,14 +67,14 @@ class hashset:
                 return False
             elif self.hash_table[position] is None:
                 self.hash_table[position] = value
-                self.element = self.element + 1
                 return True
             self.collision = self.collision + 1
         self.resize()
-        self.insert_quadratic(value)
+        self.insert(value)
 
     def insert_double(self, value):
         hash_value1 = self.hashValue(value)
+        check_collision = True
         for i in range(0, self.hash_table_size):
             hash_value2 = hash_value1 ** 3
             position = (hash_value1 + i * hash_value2) % self.hash_table_size
@@ -82,9 +83,11 @@ class hashset:
             elif self.hash_table[position] is None:
                 self.hash_table[position] = value
                 return True
-            self.collision = self.collision + 1
+            elif check_collision:
+                self.collision += 1
+                check_collision = False
         self.resize()
-        self.insert_double(value)
+        self.insert(value)
 
     def resize(self):
         self.hash_table_size = self.nextPrime(self.hash_table_size * 2)
@@ -93,20 +96,28 @@ class hashset:
         for value in previous_hash_table:
             if value is not None:
                 if self.mode == 0 or self.mode == 4:
-                    self.insert_linear(value)
+                    if self.insert_linear(value):
+                        self.rehash = self.rehash + 1
                 elif self.mode == 1 or self.mode == 5:
-                    self.insert_quadratic(value)
+                    if self.insert_quadratic(value):
+                        self.rehash = self.rehash + 1
                 elif self.mode == 2 or self.mode == 6:
-                    self.insert_double(value)
+                    if self.insert_double(value):
+                        self.rehash = self.rehash + 1
+                else:
+                    print("Error: Unknown mode")
 
     def insert(self, value):
         # TODO code for inserting into  hash table
         if self.mode == 0 or self.mode == 4:
-            self.insert_linear(value)
+            if self.insert_linear(value) is True:
+                self.access = self.access + 1
         elif self.mode == 1 or self.mode == 5:
-            self.insert_quadratic(value)
+            if self.insert_quadratic(value) is True:
+                self.access = self.access + 1
         elif self.mode == 2 or self.mode == 6:
-            self.insert_double(value)
+            if self.insert_double(value) is True:
+                self.access = self.access + 1
         else:
             print("Error: Unknown mode")
 
@@ -114,17 +125,16 @@ class hashset:
         # TODO code for looking up in hash table
         if self.mode == 0 or self.mode == 4:
             hash_value = self.hashValue(value)
-            search = False
-            position = hash_value
-            while self.hash_table[position] != value:
-                if search is True and hash_value == position:
+            for i in range(hash_value, self.hash_table_size):
+                if self.hash_table[i] == value:
+                    return True
+                elif self.hash_table[i] is None:
                     return False
-                elif search is False:
-                    if position == self.hash_table_size - 1:
-                        position = -1
-                        search = True
-                position = position + 1
-            return True
+            for i in range(0, hash_value):
+                if self.hash_table[i] == value:
+                    return True
+                elif self.hash_table[i] is None:
+                    return False
         elif self.mode == 1 or self.mode == 5:
             hash_value = self.hashValue(value)
             for i in range(0, self.hash_table_size):
@@ -149,25 +159,26 @@ class hashset:
 
     def print_set(self):
         # TODO code for printing hash table
-        if self.mode == 0 or self.mode == 1 or self.mode == 2:
-            print("Hash Table:")
-            for i in range(0, self.hash_table_size):
+        for i in range(0, self.hash_table_size):
+            if self.hash_table[i] is not None:
                 print(i, self.hash_table[i])
-        elif self.mode == 4 or self.mode == 5 or self.mode == 6:
-            print("Hash Table:")
-            for i in range(0, self.hash_table_size):
-                print(i, self.hash_table[i])
-        else:
-            print("Error: Unknown mode")
+        # if self.mode == 0 or self.mode == 1 or self.mode == 2:
+        #     print("Hash Table:")
+        #     for i in range(0, self.hash_table_size):
+        #         print(i, self.hash_table[i])
+        # elif self.mode == 4 or self.mode == 5 or self.mode == 6:
+        #     print("Hash Table:")
+        #     for i in range(0, self.hash_table_size):
+        #         print(i, self.hash_table[i])
+        # else:
+        #     print("Error: Unknown mode")
 
     def print_stats(self):
         # TODO code for printing statistics
         print("Number of collisions:", self.collision)
-        print("Elements in hash table:", self.element)
-        # print("Number of rehashed:", self.rehashed)
-        # print("Average collisions per access:", self.collision / self.access)
-
-
+        print("Number of rehashed:", self.rehash)
+        print("Number of accesses:", self.access)
+        print("Average collisions per access:", self.collision / self.access)
 
 
 # This is a cell structure assuming Open Addressing

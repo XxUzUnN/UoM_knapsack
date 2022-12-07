@@ -11,6 +11,7 @@ class hashset:
         self.hash_table_size = config.init_size
         self.hash_table = [None] * self.hash_table_size
         self.collision = 0
+        self.element = 0
 
     # Helper functions for finding prime numbers
     def isPrime(self, n):
@@ -40,23 +41,22 @@ class hashset:
 
     def insert_linear(self, value):
         hash_value = self.hashValue(value)
-        search = False
-        position = hash_value
-        while self.hash_table[position] is not None:
-            if self.hash_table[position] == value:
+        for i in range(hash_value, self.hash_table_size):
+            if self.hash_table[i] is None:
+                self.hash_table[i] = value
+                return True
+            elif self.hash_table[i] == value:
                 return False
-            elif search is True and hash_value == position:
-                self.resize()
-                search = False
-                position = self.hashValue(value)
-                hash_value = position
-            elif search is False:
-                if position == self.hash_table_size - 1:
-                    position = -1
-                    search = True
-            position = position + 1
             self.collision = self.collision + 1
-        self.hash_table[position] = value
+        for i in range(0, hash_value):
+            if self.hash_table[i] is None:
+                self.hash_table[i] = value
+                return True
+            elif self.hash_table[i] == value:
+                return False
+            self.collision = self.collision + 1
+        self.resize()
+        self.insert_linear(value)
 
     def insert_quadratic(self, value):
         hash_value = self.hashValue(value)
@@ -66,8 +66,7 @@ class hashset:
                 return False
             elif self.hash_table[position] is None:
                 self.hash_table[position] = value
-                return True
-            elif self.hash_table[position] == value:
+                self.element = self.element + 1
                 return True
             self.collision = self.collision + 1
         self.resize()
@@ -82,8 +81,6 @@ class hashset:
                 return False
             elif self.hash_table[position] is None:
                 self.hash_table[position] = value
-                return True
-            elif self.hash_table[position] == value:
                 return True
             self.collision = self.collision + 1
         self.resize()
@@ -165,8 +162,8 @@ class hashset:
 
     def print_stats(self):
         # TODO code for printing statistics
-        # print the number of collisions, rehashed and average collisions per access
         print("Number of collisions:", self.collision)
+        print("Elements in hash table:", self.element)
         # print("Number of rehashed:", self.rehashed)
         # print("Average collisions per access:", self.collision / self.access)
 

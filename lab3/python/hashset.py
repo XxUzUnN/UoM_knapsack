@@ -10,6 +10,7 @@ class hashset:
         self.mode = config.mode
         self.hash_table_size = config.init_size
         self.hash_table = [None] * self.hash_table_size
+        self.collision = 0
 
     # Helper functions for finding prime numbers
     def isPrime(self, n):
@@ -38,55 +39,55 @@ class hashset:
             return (sum ** 3) % self.hash_table_size
 
     def insert_linear(self, value):
-        if self.mode == 0 or self.mode == 4:
-            hash_value = self.hashValue(value)
-            search = False
-            position = hash_value
-            while self.hash_table[position] is not None:
-                if self.hash_table[position] == value:
-                    return False
-                elif search is True and hash_value == position:
-                    self.resize()
-                    search = False
-                    position = self.hashValue(value)
-                    hash_value = position
-                elif search is False:
-                    if position == self.hash_table_size - 1:
-                        position = -1
-                        search = True
-                position = position + 1
-            self.hash_table[position] = value
+        hash_value = self.hashValue(value)
+        search = False
+        position = hash_value
+        while self.hash_table[position] is not None:
+            if self.hash_table[position] == value:
+                return False
+            elif search is True and hash_value == position:
+                self.resize()
+                search = False
+                position = self.hashValue(value)
+                hash_value = position
+            elif search is False:
+                if position == self.hash_table_size - 1:
+                    position = -1
+                    search = True
+            position = position + 1
+            self.collision = self.collision + 1
+        self.hash_table[position] = value
 
     def insert_quadratic(self, value):
-        if self.mode == 1 or self.mode == 5:
-            hash_value = self.hashValue(value)
-            for i in range(0, self.hash_table_size):
-                position = (hash_value + i * i) % self.hash_table_size
-                if self.hash_table[position] == value:
-                    return False
-                elif self.hash_table[position] is None:
-                    self.hash_table[position] = value
-                    return True
-                elif self.hash_table[position] == value:
-                    return True
-            self.resize()
-            self.insert_quadratic(value)
+        hash_value = self.hashValue(value)
+        for i in range(0, self.hash_table_size):
+            position = (hash_value + i * i) % self.hash_table_size
+            if self.hash_table[position] == value:
+                return False
+            elif self.hash_table[position] is None:
+                self.hash_table[position] = value
+                return True
+            elif self.hash_table[position] == value:
+                return True
+            self.collision = self.collision + 1
+        self.resize()
+        self.insert_quadratic(value)
 
     def insert_double(self, value):
-        if self.mode == 2 or self.mode == 6:
-            hash_value1 = self.hashValue(value)
-            for i in range(0, self.hash_table_size):
-                hash_value2 = hash_value1 ** 3
-                position = (hash_value1 + i * hash_value2) % self.hash_table_size
-                if self.hash_table[position] == value:
-                    return False
-                elif self.hash_table[position] is None:
-                    self.hash_table[position] = value
-                    return True
-                elif self.hash_table[position] == value:
-                    return True
-            self.resize()
-            self.insert_double(value)
+        hash_value1 = self.hashValue(value)
+        for i in range(0, self.hash_table_size):
+            hash_value2 = hash_value1 ** 3
+            position = (hash_value1 + i * hash_value2) % self.hash_table_size
+            if self.hash_table[position] == value:
+                return False
+            elif self.hash_table[position] is None:
+                self.hash_table[position] = value
+                return True
+            elif self.hash_table[position] == value:
+                return True
+            self.collision = self.collision + 1
+        self.resize()
+        self.insert_double(value)
 
     def resize(self):
         self.hash_table_size = self.nextPrime(self.hash_table_size * 2)
@@ -101,13 +102,6 @@ class hashset:
                 elif self.mode == 2 or self.mode == 6:
                     self.insert_double(value)
 
-    def insert_separate_chaining(self, value):
-        hash_value = self.hashValue(value)
-        if self.hash_table[hash_value] is None:
-            self.hash_table[hash_value] = [value]
-        else:
-            self.hash_table[hash_value].append(value)
-
     def insert(self, value):
         # TODO code for inserting into  hash table
         if self.mode == 0 or self.mode == 4:
@@ -116,8 +110,6 @@ class hashset:
             self.insert_quadratic(value)
         elif self.mode == 2 or self.mode == 6:
             self.insert_double(value)
-        elif self.mode == 3 or self.mode == 7:
-            self.insert_separate_chaining(value)
         else:
             print("Error: Unknown mode")
 
@@ -160,11 +152,25 @@ class hashset:
 
     def print_set(self):
         # TODO code for printing hash table
-        print("Error: find not implemented")
+        if self.mode == 0 or self.mode == 1 or self.mode == 2:
+            print("Hash Table:")
+            for i in range(0, self.hash_table_size):
+                print(i, self.hash_table[i])
+        elif self.mode == 4 or self.mode == 5 or self.mode == 6:
+            print("Hash Table:")
+            for i in range(0, self.hash_table_size):
+                print(i, self.hash_table[i])
+        else:
+            print("Error: Unknown mode")
 
     def print_stats(self):
         # TODO code for printing statistics
-        print("Error: find not implemented")
+        # print the number of collisions, rehashed and average collisions per access
+        print("Number of collisions:", self.collision)
+        # print("Number of rehashed:", self.rehashed)
+        # print("Average collisions per access:", self.collision / self.access)
+
+
 
 
 # This is a cell structure assuming Open Addressing

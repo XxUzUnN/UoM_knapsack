@@ -162,16 +162,6 @@ class hashset:
         for i in range(0, self.hash_table_size):
             if self.hash_table[i] is not None:
                 print(i, self.hash_table[i])
-        # if self.mode == 0 or self.mode == 1 or self.mode == 2:
-        #     print("Hash Table:")
-        #     for i in range(0, self.hash_table_size):
-        #         print(i, self.hash_table[i])
-        # elif self.mode == 4 or self.mode == 5 or self.mode == 6:
-        #     print("Hash Table:")
-        #     for i in range(0, self.hash_table_size):
-        #         print(i, self.hash_table[i])
-        # else:
-        #     print("Error: Unknown mode")
 
     def print_stats(self):
         # TODO code for printing statistics

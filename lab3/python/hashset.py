@@ -10,7 +10,6 @@ class hashset:
         self.mode = config.mode
         self.hash_table_size = config.init_size
         self.hash_table = [None] * self.hash_table_size
-        self.collision = 0
         self.access = 0
         self.rehash = 0
 
@@ -40,6 +39,18 @@ class hashset:
                 sum = sum + ord(letter) ** 3
             return (sum ** 3) % self.hash_table_size
 
+    def hashValue2(self, value):
+        if self.mode == 2:
+            sum = 0
+            for letter in value:
+                sum = sum + ord(letter) ** 2
+            return (3 * sum + 7) ** 3 % self.hash_table_size
+        elif self.mode == 6:
+            sum = 0
+            for letter in value:
+                sum = sum + ord(letter) ** 3
+            return (sum ** 3) ** 3 % self.hash_table_size
+
     def insert_linear(self, value):
         hash_value = self.hashValue(value)
         for i in range(hash_value, self.hash_table_size):
@@ -48,14 +59,12 @@ class hashset:
                 return True
             elif self.hash_table[i] == value:
                 return False
-            self.collision = self.collision + 1
         for i in range(0, hash_value):
             if self.hash_table[i] is None:
                 self.hash_table[i] = value
                 return True
             elif self.hash_table[i] == value:
                 return False
-            self.collision = self.collision + 1
         self.resize()
         self.insert(value)
 
@@ -68,24 +77,19 @@ class hashset:
             elif self.hash_table[position] is None:
                 self.hash_table[position] = value
                 return True
-            self.collision = self.collision + 1
         self.resize()
         self.insert(value)
 
     def insert_double(self, value):
         hash_value1 = self.hashValue(value)
-        check_collision = True
         for i in range(0, self.hash_table_size):
-            hash_value2 = hash_value1 ** 3
+            hash_value2 = self.hashValue2(value)
             position = (hash_value1 + i * hash_value2) % self.hash_table_size
             if self.hash_table[position] == value:
                 return False
             elif self.hash_table[position] is None:
                 self.hash_table[position] = value
                 return True
-            elif check_collision:
-                self.collision += 1
-                check_collision = False
         self.resize()
         self.insert(value)
 
@@ -165,10 +169,22 @@ class hashset:
 
     def print_stats(self):
         # TODO code for printing statistics
-        print("Number of collisions:", self.collision)
+        print("Mode:", self.mode)
+        elements = 0
+        collisions = 0
+        for i in range(self.hash_table_size):
+            if self.hash_table[i] is not None:
+                elements = elements + 1
+                if self.mode == 0 or self.mode == 4:
+                    if self.hashValue(self.hash_table[i]) != i:
+                        collisions = collisions + 1
+                elif self.mode == 1 or self.mode == 5 or self.mode == 2 or self.mode == 6:
+                    if self.hashValue(self.hash_table[i]) % self.hash_table_size != i:
+                        collisions = collisions + 1
+        print("Number of collisions:", collisions)
         print("Number of rehashed:", self.rehash)
         print("Number of accesses:", self.access)
-        print("Average collisions per access:", self.collision / self.access)
+        print("Average collisions per access:", collisions / self.access)
 
 
 # This is a cell structure assuming Open Addressing

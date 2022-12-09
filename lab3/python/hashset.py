@@ -3,12 +3,12 @@ import config
 
 
 class hashset:
-    def __init__(self):
+    def __init__(self,size=0):
         # TODO: create initial hash table
         self.hash_value = None
         self.verbose = config.verbose
         self.mode = config.mode
-        self.hash_table_size = config.init_size
+        self.hash_table_size = config.init_size if size == 0 else size
         self.hash_table = [None] * self.hash_table_size
         self.insert_num = 0
         self.insert_access = 0
@@ -57,20 +57,18 @@ class hashset:
     def insert_linear(self, value):
         hash_value = self.hashValue(value)
         for i in range(hash_value, self.hash_table_size):
+            self.insert_access = self.insert_access + 1
             if self.hash_table[i] is None:
                 self.hash_table[i] = value
-                self.insert_access = self.insert_access + 1
                 return True
             elif self.hash_table[i] == value:
-                self.insert_access = self.insert_access + 1
                 return False
         for i in range(0, hash_value):
+            self.insert_access = self.insert_access + 1
             if self.hash_table[i] is None:
                 self.hash_table[i] = value
-                self.insert_access = self.insert_access + 1
                 return True
             elif self.hash_table[i] == value:
-                self.insert_access = self.insert_access + 1
                 return False
         self.resize()
         self.insert(value)
@@ -78,13 +76,12 @@ class hashset:
     def insert_quadratic(self, value):
         hash_value = self.hashValue(value)
         for i in range(0, self.hash_table_size):
+            self.insert_access = self.insert_access + 1
             position = (hash_value + i * i) % self.hash_table_size
             if self.hash_table[position] == value:
-                self.insert_access = self.insert_access + 1
                 return False
             elif self.hash_table[position] is None:
                 self.hash_table[position] = value
-                self.insert_access = self.insert_access + 1
                 return True
         self.resize()
         self.insert(value)
@@ -92,20 +89,20 @@ class hashset:
     def insert_double(self, value):
         hash_value1 = self.hashValue(value)
         for i in range(0, self.hash_table_size):
+            self.insert_access = self.insert_access + 1
             hash_value2 = self.hashValue2(value)
             position = (hash_value1 + i * hash_value2) % self.hash_table_size
             if self.hash_table[position] == value:
-                self.insert_access = self.insert_access + 1
                 return False
             elif self.hash_table[position] is None:
                 self.hash_table[position] = value
-                self.insert_access = self.insert_access + 1
                 return True
         self.resize()
         self.insert(value)
 
     def resize(self):
         self.hash_table_size = self.nextPrime(self.hash_table_size * 2)
+        self.insert_num = 0
         previous_hash_table = self.hash_table
         self.hash_table = [None] * self.hash_table_size
         for value in previous_hash_table:
@@ -124,6 +121,8 @@ class hashset:
 
     def insert(self, value):
         # TODO code for inserting into  hash table
+        if self.insert_num /self.hash_table_size > 0.6:
+            self.resize()
         self.insert_num = self.insert_num + 1
         if self.mode == 0 or self.mode == 4:
             return self.insert_linear(value)
@@ -180,6 +179,20 @@ class hashset:
 
     def averageFind(self):
         return self.find_access / self.find_num
+
+    def collisionRate(self):
+        elements = 0
+        collisions = 0
+        for i in range(self.hash_table_size):
+            if self.hash_table[i] is not None:
+                elements = elements + 1
+                if self.mode == 0 or self.mode == 4:
+                    if self.hashValue(self.hash_table[i]) != i:
+                        collisions = collisions + 1
+                elif self.mode == 1 or self.mode == 5 or self.mode == 2 or self.mode == 6:
+                    if self.hashValue(self.hash_table[i]) % self.hash_table_size != i:
+                        collisions = collisions + 1
+        return collisions / elements
 
 
     def print_set(self):

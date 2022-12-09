@@ -9,5 +9,5 @@ set_type = SetType.DARRAY
 prog_name = "speller_darray.py"
 DEFAULT_DICT_FILE = "sample-dictionary"
 verbose = 0
-mode = 0
+mode = 4
 init_size = 509

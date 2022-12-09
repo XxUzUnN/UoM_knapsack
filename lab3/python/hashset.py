@@ -10,7 +10,10 @@ class hashset:
         self.mode = config.mode
         self.hash_table_size = config.init_size
         self.hash_table = [None] * self.hash_table_size
-        self.access = 0
+        self.insert_num = 0
+        self.insert_access = 0
+        self.find_num = 0
+        self.find_access = 0
         self.rehash = 0
 
     # Helper functions for finding prime numbers
@@ -56,14 +59,18 @@ class hashset:
         for i in range(hash_value, self.hash_table_size):
             if self.hash_table[i] is None:
                 self.hash_table[i] = value
+                self.insert_access = self.insert_access + 1
                 return True
             elif self.hash_table[i] == value:
+                self.insert_access = self.insert_access + 1
                 return False
         for i in range(0, hash_value):
             if self.hash_table[i] is None:
                 self.hash_table[i] = value
+                self.insert_access = self.insert_access + 1
                 return True
             elif self.hash_table[i] == value:
+                self.insert_access = self.insert_access + 1
                 return False
         self.resize()
         self.insert(value)
@@ -73,9 +80,11 @@ class hashset:
         for i in range(0, self.hash_table_size):
             position = (hash_value + i * i) % self.hash_table_size
             if self.hash_table[position] == value:
+                self.insert_access = self.insert_access + 1
                 return False
             elif self.hash_table[position] is None:
                 self.hash_table[position] = value
+                self.insert_access = self.insert_access + 1
                 return True
         self.resize()
         self.insert(value)
@@ -86,9 +95,11 @@ class hashset:
             hash_value2 = self.hashValue2(value)
             position = (hash_value1 + i * hash_value2) % self.hash_table_size
             if self.hash_table[position] == value:
+                self.insert_access = self.insert_access + 1
                 return False
             elif self.hash_table[position] is None:
                 self.hash_table[position] = value
+                self.insert_access = self.insert_access + 1
                 return True
         self.resize()
         self.insert(value)
@@ -113,28 +124,29 @@ class hashset:
 
     def insert(self, value):
         # TODO code for inserting into  hash table
+        self.insert_num = self.insert_num + 1
         if self.mode == 0 or self.mode == 4:
-            if self.insert_linear(value) is True:
-                self.access = self.access + 1
+            return self.insert_linear(value)
         elif self.mode == 1 or self.mode == 5:
-            if self.insert_quadratic(value) is True:
-                self.access = self.access + 1
+            return self.insert_quadratic(value)
         elif self.mode == 2 or self.mode == 6:
-            if self.insert_double(value) is True:
-                self.access = self.access + 1
+            return self.insert_double(value)
         else:
             print("Error: Unknown mode")
 
     def find(self, value):
         # TODO code for looking up in hash table
+        self.find_num = self.find_num + 1
         if self.mode == 0 or self.mode == 4:
             hash_value = self.hashValue(value)
             for i in range(hash_value, self.hash_table_size):
+                self.find_access = self.find_access + 1
                 if self.hash_table[i] == value:
                     return True
                 elif self.hash_table[i] is None:
                     return False
             for i in range(0, hash_value):
+                self.find_access = self.find_access + 1
                 if self.hash_table[i] == value:
                     return True
                 elif self.hash_table[i] is None:
@@ -143,6 +155,7 @@ class hashset:
             hash_value = self.hashValue(value)
             for i in range(0, self.hash_table_size):
                 position = (hash_value + i * i) % self.hash_table_size
+                self.find_access = self.find_access + 1
                 if self.hash_table[position] is None:
                     return False
                 elif self.hash_table[position] == value:
@@ -153,6 +166,7 @@ class hashset:
             for i in range(0, self.hash_table_size):
                 hash_value2 = hash_value1 ** 3
                 position = (hash_value1 + i * hash_value2) % self.hash_table_size
+                self.find_access = self.find_access + 1
                 if self.hash_table[position] is None:
                     return False
                 elif self.hash_table[position] == value:
@@ -160,6 +174,13 @@ class hashset:
             return False
         else:
             print("Error: Unknown mode")
+
+    def averageInsert(self):
+        return self.insert_access / self.insert_num
+
+    def averageFind(self):
+        return self.find_access / self.find_num
+
 
     def print_set(self):
         # TODO code for printing hash table
@@ -181,10 +202,14 @@ class hashset:
                 elif self.mode == 1 or self.mode == 5 or self.mode == 2 or self.mode == 6:
                     if self.hashValue(self.hash_table[i]) % self.hash_table_size != i:
                         collisions = collisions + 1
+        average_insert = self.insert_access / self.insert_num
+        average_find = self.find_access / self.find_num
         print("Number of collisions:", collisions)
         print("Number of rehashed:", self.rehash)
-        print("Number of accesses:", self.access)
-        print("Average collisions per access:", collisions / self.access)
+        print("Number of accesses:", self.insert_access + self.find_access)
+        print("Average number of insertions:", average_insert)
+        print("Average number of find:", average_find)
+        print("Average collisions per access:", collisions / elements)
 
 
 # This is a cell structure assuming Open Addressing

@@ -36,7 +36,7 @@ class dp(knapsack):
         # main dynamic programming loops, adding on item at a time and looping through weights from 0 to W
         for i in range(1, n + 1):
             for j in range(0, W + 1):
-                if wv[i] <= j and v[i] + V[i - 1][j - wv[i]] > V[i - 1][j]:
+                if (wv[i] <= j) and (v[i] + V[i - 1][j - wv[i]] > V[i - 1][j]):
                     V[i][j] = v[i] + V[i - 1][j - wv[i]]
                     Keep[i][j] = True
                 else:

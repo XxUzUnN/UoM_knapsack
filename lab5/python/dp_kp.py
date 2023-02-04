@@ -48,9 +48,8 @@ class dp(knapsack):
         for i in range(n, 0, -1):
             if Keep[i][j]:
                 solution[i] = True
+                print("item %d is in the solution" % i)
                 j = j - wv[i]
-            else:
-                solution[i] = False
         return V[n][W]
         
         

@@ -126,6 +126,8 @@ class bnb(knapsack):
         i = fix + 1
         while (i <= self.Nitems and totalw < self.Capacity):
             # ADD CODE HERE to update totalw and totalp
+            totalw = totalw + self.item_weights[self.temp_indexes[i]]
+            totalp = totalp + self.item_values[self.temp_indexes[i]]
             i = i + 1
         
         # if over-run the capacity, adjust profit total by substracting that overrun fractio of the last item
@@ -157,7 +159,7 @@ class bnb(knapsack):
   
 
         # YOUR CODE GOES HERE
-        
+
     def copy_array(self, array_from, array_to):
         # This copies Nitems elements of one boolean array to another
         # Notice it ignores the 0th item of the array

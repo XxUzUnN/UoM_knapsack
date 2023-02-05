@@ -137,7 +137,7 @@ class bnb(knapsack):
         sol.bound = totalp
         
     def branch_and_bound(self, final_sol):
-        self.pqueue[0] = struc_sol() # set a blank first element
+        self.pqueue[0] = struc_sol()# set a blank first element
         
         # branch and bound
 
@@ -145,20 +145,41 @@ class bnb(knapsack):
         # compute its value and its bound
         # put current_best = to its value
         # store it in the priority queue
+
+        solution = struc_sol()
+        solution.fixed = 0
+        self.frac_bound(solution, 0)
+        current_best = solution.val
+        self.insert(solution)
+
   
         # LOOP until queue is empty or upper bound is not greater than current_best:
-        #   remove the first item in the queue
-        #   construct two children, 1 with a 1 added, 1 with a O added
-        #   FOREACH CHILD:
-        #     if infeasible, discard child
-        #     else
-        #       compute the value and bound
-        #       if value > current_best, set current_best to it, and copy child to final_sol
-        #       add child to the queue
+        # remove the first item in the queue
+        # construct two children, 1 with a 1 added, 1 with a O added
+        # FOREACH CHILD:
+        #   if infeasible, discard child
+        #   else
+        #     compute the value and bound
+        #     if value > current_best, set current_best to it, and copy child to final_sol
+        #     add child to the queue
         # RETURN
-  
+        while self.QueueSize > 0 and self.pqueue[1].bound > current_best:
+            solution = self.removeMax()
+            for i in range(0, 2):
+                child = struc_sol()
+                child.solution_vec = [False] * (self.Nitems + 1)
+                self.copy_array(solution.solution_vec, child.solution_vec)
+                child.solution_vec[solution.fixed + 1] = i
+                child.fixed = solution.fixed + 1
+                self.frac_bound(child, child.fixed)
+                if child.val == -1:
+                    del child
+                else:
+                    if child.val > current_best:
+                        current_best = child.val
+                        self.copy_array(child.solution_vec, final_sol)
+                    self.insert(child)
 
-        # YOUR CODE GOES HERE
 
     def copy_array(self, array_from, array_to):
         # This copies Nitems elements of one boolean array to another

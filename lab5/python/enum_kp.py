@@ -23,9 +23,18 @@ class enum_knapsack(knapsack):
 
         while not self.next_binary(solution, self.Nitems):
             j = j + 1.0
+            current = j / math.pow(2, self.Nitems)
             if not self.QUIET:
-                print("done %g of the full enumeration" % (j / math.pow(2, self.Nitems)))
+                print("done %g of the full enumeration" % current)
 
+            # print progress
+            if str(round(current * 100, 1))[-1] == "0":
+                print("\r", end="")
+                block_num = int(current * 100) // 2
+                print(
+                    f"Progress: {int(current * 100)}% | [{'▉' * block_num}"
+                    f"{' ' * (50-block_num)}]",
+                    end="")
             infeasible = self.check_evaluate_and_print_sol(solution)
 
             if (not infeasible) and (self.total_value > best_value):
@@ -37,14 +46,11 @@ class enum_knapsack(knapsack):
             if not self.QUIET:
                 print("best so far has value %d" % best_value)
 
+        print("\r", end="")
+        print(f"Progress: 100% | [{'▉' * 50}]", end="")
         self.QUIET = False
         print("Finished.\nPack the following items for optimal")
         self.check_evaluate_and_print_sol(best_solution)
-
-        # show the best (the highest value) feasible solution
-        print("Best solution found has value %d" % best_value)
-
-
 
     def next_binary(self, sol, Nitems):
         # Called with a "binary" vector of length Nitems, this
